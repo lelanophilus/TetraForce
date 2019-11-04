@@ -18,6 +18,7 @@ var last_movedir = Vector2(0,1)
 # COMBAT
 var health = MAX_HEALTH
 signal health_changed
+signal hitstun_end
 var hitstun = 0
 
 # NETWORK
@@ -38,6 +39,8 @@ onready var camera = get_parent().get_node("Camera")
 var texture_default = null
 var entity_shader = preload("res://engine/entity.shader")
 
+var room : network.Room
+
 func _ready():
 	
 	texture_default = sprite.texture
@@ -51,6 +54,11 @@ func _ready():
 	health = MAX_HEALTH
 	home_position = position
 	create_hitbox()
+	
+	network.current_map.connect("player_entered", self, "player_entered")
+	
+	room = network.get_room(position)
+	room.add_entity(self)
 
 func create_hitbox():
 	var new_hitbox = Area2D.new()
@@ -79,7 +87,14 @@ func puppet_update():
 	pass
 
 func is_scene_owner():
+	if !network.map_owners.keys().has(network.current_map.name):
+		return false
 	if network.map_owners[network.current_map.name] == get_tree().get_network_unique_id():
+		return true
+	return false
+
+func is_dead():
+	if health <= 0 && hitstun == 0:
 		return true
 	return false
 
@@ -129,6 +144,7 @@ func loop_damage():
 		rpc_unreliable("hurt_texture")
 	elif hitstun == 1:
 		rpc("default_texture")
+		emit_signal("hitstun_end")
 		hitstun -= 1
 	
 	for area in hitbox.get_overlapping_areas():
@@ -190,9 +206,9 @@ func choose_subitem(possible_drops, drop_chance):
 		var drop_choice = 0
 		match dropped:
 			"HEALTH":
-				drop_choice = "res://objects/heart.tscn"
+				drop_choice = "res://droppables/heart.tscn"
 			"RUPEE":
-				drop_choice = "res://objects/rupee.tscn"
+				drop_choice = "res://droppables/rupee.tscn"
 		
 		if typeof(drop_choice) != TYPE_INT:
 			var subitem_name = str(randi()) # we need to sync names to ensure the subitem can rpc to the same thing for others
@@ -200,13 +216,27 @@ func choose_subitem(possible_drops, drop_chance):
 			for peer in network.map_peers:
 				network.current_map.rpc_id(peer, "spawn_subitem", drop_choice, global_position, subitem_name)
 
+func send_chat_message(source, text):
+	network.current_map.receive_chat_message(source, text)
+	rpc("receive_chat_message", source, text)
+
 sync func enemy_death():
 	if is_scene_owner():
 		choose_subitem(["HEALTH", "RUPEE"], 100)
+	room.remove_entity(self)
 	var death_animation = preload("res://enemies/enemy_death.tscn").instance()
 	death_animation.global_position = global_position
 	get_parent().add_child(death_animation)
-	queue_free()
+	
+	set_dead()
+
+remote func set_dead():
+	hide()
+	set_physics_process(false)
+	set_process(false)
+	home_position = Vector2(0,0)
+	position = Vector2(0,0)
+	health = -1
 
 func rset_map(property, value):
 	for peer in network.map_peers:
@@ -233,3 +263,7 @@ func sync_property_unreliable(property, value):
 		if !is_scene_owner():
 			return
 	rset_unreliable_map(property, value)
+
+func player_entered(id):
+	if is_scene_owner() && is_dead():
+		rpc_id(id, "set_dead")
