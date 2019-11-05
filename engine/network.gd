@@ -151,23 +151,29 @@ class Room :
 	#var map 
 	var tile_rect = Rect2(0, 0, 16, 9)
 	var entities = []
-	var enemies = [] 
+	var enemies = []
+	var players = {}
 	
 	signal player_entered()
+	signal first_player_entered()
 	signal player_exited()
+	signal last_player_exited()
 	signal enemies_defeated()
 	signal empty()
 	
-	func add_entity(entity):
+	func add_entity(entity: Node2D):
 		entities.append(entity)
 		
 		if entity.is_in_group("enemy"):
 			enemies.append(entity)
 		
 		if entity.is_in_group("player"):
+			if players.size() == 0:
+				emit_signal("first_player_entered")
+			players[entity.get_instance_id()] = true
 			emit_signal("player_entered")
 	
-	func remove_entity(entity):
+	func remove_entity(entity: Node2D):
 		entities.erase(entity)
 		
 		if entity.is_in_group("enemy"):
@@ -177,7 +183,10 @@ class Room :
 				emit_signal("enemies_defeated")
 		
 		if entity.is_in_group("player"):
+			players.erase(entity.get_instance_id())
 			emit_signal("player_exited")
+			if players.size() == 0:
+				emit_signal("last_player_exited")
 		
 		if entities.empty():
 			emit_signal("empty")
