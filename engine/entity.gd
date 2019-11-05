@@ -58,7 +58,7 @@ func _ready():
 	get_parent().connect("player_entered", self, "player_entered")
 	
 	room = network.get_room(position)
-	room.add_entity(self)
+	call_deferred("add_entity", room, self)
 
 func create_hitbox():
 	var new_hitbox = Area2D.new()
