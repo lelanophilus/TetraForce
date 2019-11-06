@@ -8,14 +8,12 @@ func _init():
 	spritedir = ""
 
 func _ready():
-	puppet_pos = position
 	if is_scene_owner():
-		pass
+		register_pumpkin()
+	puppet_pos = position
 	puppet_anim = "idle"
 	anim_switch("idle")
 	connect("update_animation", self, "_on_update_animation")
-	#if room_to_pumpkins.size() == 0:
-	register_pumpkin()
 
 func register_pumpkin():
 	var room: network.Room = network.get_room(position)
