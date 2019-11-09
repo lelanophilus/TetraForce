@@ -14,10 +14,6 @@ func _ready():
 	puppet_anim = "idle"
 	anim_switch("idle")
 	anim.connect("animation_finished", self, "to_steady_state")
-	connect("update_animation", self, "_on_update_animation")
-
-func _on_update_animation(value):
-	rset_map("puppet_anim", value)
 
 func puppet_update():
 	if anim.current_animation != puppet_anim:

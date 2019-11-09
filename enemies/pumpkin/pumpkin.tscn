@@ -1,25 +1,10 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://enemies/pumpkin/pumpkin.gd" type="Script" id=1]
-[ext_resource path="res://enemies/pumpkin/pumpkin.png" type="Texture" id=2]
-
-[sub_resource type="Animation" id=4]
-resource_name = "armed"
-tracks/0/type = "value"
-tracks/0/path = NodePath("Sprite:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 1.5, 1.5 ) ]
-}
+[ext_resource path="res://enemies/pumpkin/shadow.png" type="Texture" id=2]
+[ext_resource path="res://enemies/pumpkin/pumpkin.png" type="Texture" id=3]
 
 [sub_resource type="Animation" id=1]
-resource_name = "idle"
 tracks/0/type = "value"
 tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 1
@@ -33,7 +18,7 @@ tracks/0/keys = {
 "values": [ 0 ]
 }
 tracks/1/type = "value"
-tracks/1/path = NodePath("Sprite:scale")
+tracks/1/path = NodePath("Sprite:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
@@ -42,25 +27,72 @@ tracks/1/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 1, 1 ) ]
+"values": [ Vector2( 0, 2 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CollisionShape2D:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 3 ) ]
 }
 
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 5, 5 )
+[sub_resource type="Animation" id=2]
+resource_name = "levitate"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 2 ), Vector2( 0, -4 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CollisionShape2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 3 ), Vector2( 0, -3 ) ]
+}
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 6, 3 )
 
 [node name="Pumpkin" type="KinematicBody2D"]
 collision_layer = 2
 collision_mask = 2
 script = ExtResource( 1 )
+MAX_HEALTH = 0.5
+SPEED = 125
+DAMAGE = 1.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 playback_speed = 4.0
-anims/armed = SubResource( 4 )
 anims/idle = SubResource( 1 )
+anims/levitate = SubResource( 2 )
 
-[node name="Sprite" type="Sprite" parent="."]
+[node name="ShadowSprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
 
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 0, 2 )
+texture = ExtResource( 3 )
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
-shape = SubResource( 2 )
+position = Vector2( 0, 3 )
+shape = SubResource( 3 )

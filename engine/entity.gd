@@ -20,6 +20,7 @@ var health = MAX_HEALTH
 signal health_changed
 signal hitstun_end
 var hitstun = 0
+var knockdir_speed = 125
 
 # NETWORK
 puppet var puppet_pos
@@ -58,7 +59,7 @@ func _ready():
 	get_parent().connect("player_entered", self, "player_entered")
 	
 	room = network.get_room(position)
-	call_deferred("add_entity", room, self)
+	room.add_entity(self)
 
 func create_hitbox():
 	var new_hitbox = Area2D.new()
@@ -103,7 +104,7 @@ func loop_movement():
 	if hitstun == 0:
 		motion = movedir.normalized() * SPEED
 	else:
-		motion = knockdir.normalized() * 125
+		motion = knockdir.normalized() * knockdir_speed
 	
 	# This is optimal, but it doesn't sync players on initial connection.
 	# if move_and_slide(motion) != Vector2.ZERO:
