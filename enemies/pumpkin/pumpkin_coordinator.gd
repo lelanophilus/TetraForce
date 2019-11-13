@@ -13,11 +13,9 @@ var pumpkins = []
 var active_pumpkins = []
 var room: network.Room
 
-func _init():
+func _ready():
 	room = network.get_room(position)
 	room_to_coordinator[room] = self
-
-func _ready():
 	room.connect("first_player_entered", self, "start_timer")
 	room.connect("last_player_exited", self, "stop_timer")
 	$Timer.connect("timeout", self, "activate_pumpkin")

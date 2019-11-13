@@ -19,6 +19,9 @@ func finalize_pumpkin():
 		if coordinator:
 			coordinator.register_pumpkin(self)
 			anim.connect("animation_finished", self, "pumpkin_attack")
+			print("REGISTERED PUMPKIN")
+		else:
+			print("No coordinator")
 
 func _physics_process(delta):
 	if !is_scene_owner() || is_dead():
@@ -33,7 +36,6 @@ func _physics_process(delta):
 
 func pumpkin_attack(anim_name):
 	if is_scene_owner() and anim_name == "levitate":
-		print("is scene owner")
 		var players = room.players.values()
 		var player = players[randi() % players.size()]
 		movedir = (player.global_position - global_position).normalized()

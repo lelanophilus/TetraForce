@@ -168,10 +168,10 @@ class Room :
 			enemies[entity.get_instance_id()] = true
 		
 		if entity.get("TYPE") == "PLAYER":
-			if players.size() == 0:
-				emit_signal("first_player_entered")
 			players[entity.get_instance_id()] = entity
 			emit_signal("player_entered")
+			if players.size() == 1:
+				emit_signal("first_player_entered")
 	
 	func remove_entity(entity: Node2D):
 		entities.erase(entity)
