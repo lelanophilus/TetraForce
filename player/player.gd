@@ -207,11 +207,10 @@ func screen_change_started():
 	room.remove_entity(self)
 
 func screen_change_completed():
-	
 	set_physics_process(true)
 	room = network.get_room(position)
 	room.add_entity(self)
-	
+
 func lighting_mode_changed(energy):
 	$Tween.interpolate_property($Light2D, "energy", $Light2D.energy, energy, 0.2, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT, 0.2)
 	$Tween.start()
