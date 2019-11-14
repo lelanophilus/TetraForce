@@ -48,6 +48,7 @@ func activate():
 func puppet_update():
 	if anim.current_animation != puppet_anim:
 		anim.play(puppet_anim)
+	position = puppet_pos
 
 func _process(delta):
 	loop_network()
